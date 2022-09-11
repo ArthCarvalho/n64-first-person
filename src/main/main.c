@@ -108,6 +108,10 @@ void mainproc(void *arg)
   /* The initialization of graphic  */
   nuGfxInit();
 
+  nuContInit();
+  // Initialize Rumble Pak
+  nuContRmbModeSet(0, NU_CONT_RMB_MODE_AUTORUN);
+
 
 #ifdef HIRESO
   nuGfxTaskAllEndWait();

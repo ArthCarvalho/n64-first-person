@@ -11,7 +11,7 @@
 #ifndef _GRAPHIC_H_
 #define _GRAPHIC_H_
 
-#define HIRESO
+//#define HIRESO
 
 #define NUSYS_FRAMERATE 1 // 1 = 60 FPS, 2 = 30 FPS, 3 = 20FPS (NTSC)
 
@@ -29,10 +29,25 @@
 
 #define PACK_RGBA(r,g,b,a) (GPACK_RGBA5551(r, g, b, a) << 16 |	GPACK_RGBA5551(r, g, b, a))
 
+typedef float MtxF_t[4][4];
+typedef union {
+    MtxF_t mf;
+    struct {
+        float xx, yx, zx, wx,
+              xy, yy, zy, wy,
+              xz, yz, zz, wz,
+              xw, yw, zw, ww;
+    };
+} MtxF;
+
 /*-------------------------- define structure ------------------------------ */
 /* The projection-matrix structure  */
 typedef struct {
+  MtxF    projectionF;
+  MtxF    viewF;
+  MtxF    viewSkyF;
   Mtx     projection;
+  Mtx     projectionSky;
   Mtx     modeling;
   unsigned short perspNorm;
 } Dynamic;

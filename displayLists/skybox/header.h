@@ -1,0 +1,13 @@
+extern Lights1 skybox_f3d_material_001_lights;
+extern Lights1 skybox_f3d_material_004_lights;
+extern u64 skybox_moon_hw_rgba32[];
+extern Vtx skybox_skybox_mesh_vtx_cull[8];
+extern Vtx skybox_skybox_mesh_vtx_0[9];
+extern Gfx skybox_skybox_mesh_tri_0[];
+extern Vtx skybox_skybox_mesh_vtx_1[4];
+extern Gfx skybox_skybox_mesh_tri_1[];
+extern Gfx mat_skybox_f3d_material_001[];
+extern Gfx mat_revert_skybox_f3d_material_001[];
+extern Gfx mat_skybox_f3d_material_004[];
+extern Gfx mat_revert_skybox_f3d_material_004[];
+extern Gfx skybox_skybox_mesh[];
