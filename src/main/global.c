@@ -37,6 +37,14 @@ ControlSettings controlProfiles[] = {
     CONTROLTYPE_ANALOG, // Use Analog Stick
     1, // Camera Gamepad
     CONTROLTYPE_ANALOG, // Use Analog Stick
+  },
+  // 3 - Inverse Dual Pad, 1p Analog: Camera, 2p Analog: Move
+  {
+    1, // Dual gamepad
+    1, // Movement Gamepad
+    CONTROLTYPE_ANALOG, // Use Analog Stick
+    0, // Camera Gamepad
+    CONTROLTYPE_ANALOG, // Use Analog Stick
   }
 };
 
@@ -88,7 +96,9 @@ void Input_GetAxis(Vec2F * result, NUContData * input, u8 type) {
   }
 }
 
-#define BUTTON_INPUT_MASK (BTN_A | BTN_B | BTN_START | BTN_L | BTN_R | BTN_Z)
+#define BUTTON_INPUT_MASK ( BTN_A | BTN_B | BTN_START | BTN_L | BTN_R | BTN_Z | \
+U_JPAD | D_JPAD | L_JPAD | R_JPAD | \
+U_CBUTTONS | D_CBUTTONS | L_CBUTTONS | R_CBUTTONS )
 
 void Input_TranslateControls(ControllerInput * result, NUContData * input, GameplaySettings * settings) {
   NUContData * icMove = &input[settings->controls.movementPad];
@@ -106,13 +116,22 @@ void Input_TranslateControls(ControllerInput * result, NUContData * input, Gamep
     result->analog_r.y *= -1.0f;
   }
 
+  u16 inputMask = BUTTON_INPUT_MASK;
+  // Check if either D-Pad or C-Buttons is assigned to something else and mask them out
+  if(settings->controls.movementControl == CONTROLTYPE_DPAD || settings->controls.cameraControl == CONTROLTYPE_DPAD) {
+    inputMask |= ~(U_JPAD | D_JPAD | L_JPAD | R_JPAD);
+  }
+  if(settings->controls.movementControl == CONTROLTYPE_CBUTTONS || settings->controls.cameraControl == CONTROLTYPE_CBUTTONS) {
+    inputMask |= ~(U_CBUTTONS | D_CBUTTONS | L_CBUTTONS | R_CBUTTONS);
+  }
+
   if(settings->controls.useDualPads) {
     // Get button presses from both controllers
-    result->button = (icMove->button | icCamera->button) & BUTTON_INPUT_MASK;
-    result->trigger = (icMove->trigger | icCamera->trigger) & BUTTON_INPUT_MASK;
+    result->button = (icMove->button | icCamera->button) & inputMask;
+    result->trigger = (icMove->trigger | icCamera->trigger) & inputMask;
   } else {
-    result->button = icMove->button & BUTTON_INPUT_MASK;
-    result->trigger = (icMove->trigger | icCamera->trigger) & BUTTON_INPUT_MASK;
+    result->button = icMove->button & inputMask;
+    result->trigger = (icMove->trigger | icCamera->trigger) & inputMask;
   }
   // TODO: Change analog stick response curve and other options here.
 }

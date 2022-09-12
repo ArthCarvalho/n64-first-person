@@ -213,12 +213,14 @@ void makeDL00(void)
   );
   
   screenDirtLvl = 0.0f;
-  screenDepth = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y);
-  u16 depthProbe0 = Screen_GetPixelDepthSafe(sunpos_screen.x+6, sunpos_screen.y) == GPACK_ZDZ(G_MAXFBZ,0);
-  u16 depthProbe1 = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y+6) == GPACK_ZDZ(G_MAXFBZ,0);
-  u16 depthProbe2 = Screen_GetPixelDepthSafe(sunpos_screen.x-6, sunpos_screen.y) == GPACK_ZDZ(G_MAXFBZ,0);
-  u16 depthProbe3 = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y-6) == GPACK_ZDZ(G_MAXFBZ,0);
-  screenDirtLvl = ((screenDepth == GPACK_ZDZ(G_MAXFBZ,0)) + depthProbe0 + depthProbe1 + depthProbe2 + depthProbe3) / 5.0f;
+  if(sunpos_screen.z > 0.0f){
+    screenDepth = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y);
+    u16 depthProbe0 = Screen_GetPixelDepthSafe(sunpos_screen.x+6, sunpos_screen.y) == GPACK_ZDZ(G_MAXFBZ,0);
+    u16 depthProbe1 = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y+6) == GPACK_ZDZ(G_MAXFBZ,0);
+    u16 depthProbe2 = Screen_GetPixelDepthSafe(sunpos_screen.x-6, sunpos_screen.y) == GPACK_ZDZ(G_MAXFBZ,0);
+    u16 depthProbe3 = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y-6) == GPACK_ZDZ(G_MAXFBZ,0);
+    screenDirtLvl = ((screenDepth == GPACK_ZDZ(G_MAXFBZ,0)) + depthProbe0 + depthProbe1 + depthProbe2 + depthProbe3) / 5.0f;
+  }
   if(screenDirtLvl < 0.00025f) screenDirtLvl = 0.0f;
 
   if(screenDirtLvlPrev != 0.0f) {
@@ -256,8 +258,6 @@ void makeDL00(void)
 
 
   DebugText_Print(0,0, "Light x: %f y: %f z: %f", sunpos_screen.x, sunpos_screen.y, sunpos_screen.z);
-  DebugText_Print(0,1, "Spec x: %f y: %f a: %f", screenDirt[0].position.x, screenDirt[0].position.y, screenDirt[0].alpha);
-
 
   // Draw Debug
   DebugText_Draw(&glistp);
