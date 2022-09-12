@@ -58,6 +58,7 @@ SECTIONS
 
       */libultra_rom.a:*.o(.text);
       */libnusys.a:*.o(.text);
+      */libnustd.a:*.o(.text);
       */libgcc.a:*.o(.text);
       /usr/lib/n64/PR/rspboot.o(.text);
       /usr/lib/n64/PR/gspF3DEX2.fifo.o(.text);
@@ -73,6 +74,7 @@ SECTIONS
 
       */libultra_rom.a:*.o(.data*);
       */libnusys.a:*.o(.data*);
+      */libnustd.a:*.o(.data);
       /usr/lib/n64/PR/rspboot.o(.data*);
       /usr/lib/n64/PR/gspF3DEX2.fifo.o(.data*);
       /usr/lib/n64/PR/gspL3DEX2.fifo.o(.data*);
@@ -87,6 +89,7 @@ SECTIONS
 
       */libultra_rom.a:*.o(.*rodata*);
       */libnusys.a:*.o(.*rodata*);
+      */libnustd.a:*.o(.rodata);
       */libgcc.a:*.o(.*rodata*);
    }
    END_SEG(code)

@@ -11,8 +11,11 @@
 #include <assert.h>
 #include <nusys.h>
 #include "graphic.h"
+#include "global.h"
+#include "debug_text.h"
 
 #include "displayLists/building/model.inc.c"
+#include "displayLists/background/model.inc.c"
 #include "displayLists/skybox/model.inc.c"
 
 typedef struct AnalogMapping {
@@ -34,18 +37,10 @@ typedef struct PlayerControl {
   float speed_sideways;
 } PlayerControl;
 
-typedef struct Vec2f {
-  float x, y;
-} Vec2f;
-
-typedef struct Vec3f {
-  float x, y, z;
-} Vec3f;
-
 typedef struct Player {
-  Vec3f position;
-  Vec2f direction; // Direction on XZ plane;
-  Vec3f viewDirection; // View vector
+  Vec3F position;
+  Vec2F direction; // Direction on XZ plane;
+  Vec3F viewDirection; // View vector
   float rotation_y; // Horizontal (Y axis) Rotation
   float rotation_head; // Vertical Rotation
   float view_height;
@@ -244,6 +239,12 @@ void makeDL00(void)
   /* Draw a square  */
   shadetri(&gfx_dynamic);
 
+  DebugText_Print(0,0, "Testing %f", rotate);
+
+
+  // Draw Debug
+  DebugText_Draw(&glistp);
+
   /* End the construction of the display list  */
   gDPFullSync(glistp++);
   gSPEndDisplayList(glistp++);
@@ -278,5 +279,7 @@ void shadetri(Dynamic* dynamicp)
   gSPMatrix(glistp++,OS_K0_TO_PHYSICAL(&(dynamicp->projection)),
 		G_MTX_PROJECTION|G_MTX_LOAD|G_MTX_NOPUSH);
 
-  gSPDisplayList(glistp++,building_building_mesh);
+  gSPDisplayList(glistp++,building_level_mesh);
+
+  gSPDisplayList(glistp++,background_background_mesh);
 }

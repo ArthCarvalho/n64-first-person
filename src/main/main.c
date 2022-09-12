@@ -11,6 +11,8 @@
 #include <nusys.h>
 #include "graphic.h"
 #include "vimodes.h"
+#include "global.h"
+#include "debug_text.h"
 
 #define	ZBUFFER_ADDR	(0x80400000-320*480*2*3)
 #define CFB_HIGH_ADDR0	(0x80400000-320*480*2*2)
@@ -130,6 +132,8 @@ void mainproc(void *arg)
   nuGfxSetCfb(HighFrameBuf, 2);
   nuGfxSetZBuffer((u16*)(ZBUFFER_ADDR));
 #endif
+
+  DebugText_Initialize();
 
   /* Register call-back  */
   nuGfxFuncSet((NUGfxFunc)stage00);

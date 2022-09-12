@@ -122,7 +122,7 @@ Gfx skybox_skybox_mesh_tri_1[] = {
 Gfx mat_skybox_f3d_material_001[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(1, 0, SHADE, 0, ENVIRONMENT, 0, SHADE, 0, 1, 0, SHADE, 0, ENVIRONMENT, 0, SHADE, 0),
-	gsSPGeometryMode(G_LIGHTING, 0),
+	gsSPGeometryMode(G_CULL_BACK | G_LIGHTING, 0),
 	gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_NOOP),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsSPSetLights1(skybox_f3d_material_001_lights),
@@ -131,14 +131,14 @@ Gfx mat_skybox_f3d_material_001[] = {
 
 Gfx mat_revert_skybox_f3d_material_001[] = {
 	gsDPPipeSync(),
-	gsSPGeometryMode(0, G_LIGHTING),
+	gsSPGeometryMode(0, G_CULL_BACK | G_LIGHTING),
 	gsSPEndDisplayList(),
 };
 
 Gfx mat_skybox_f3d_material_004[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0),
-	gsSPGeometryMode(G_LIGHTING, 0),
+	gsSPGeometryMode(G_SHADE | G_CULL_BACK | G_LIGHTING, 0),
 	gsDPSetRenderMode(G_RM_ZB_XLU_SURF, G_RM_ZB_XLU_SURF2),
 	gsSPTexture(65535, 65535, 0, 0, 1),
 	gsDPTileSync(),
@@ -156,7 +156,7 @@ Gfx mat_skybox_f3d_material_004[] = {
 
 Gfx mat_revert_skybox_f3d_material_004[] = {
 	gsDPPipeSync(),
-	gsSPGeometryMode(0, G_LIGHTING),
+	gsSPGeometryMode(0, G_SHADE | G_CULL_BACK | G_LIGHTING),
 	gsSPEndDisplayList(),
 };
 
