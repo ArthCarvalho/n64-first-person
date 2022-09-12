@@ -22,7 +22,7 @@ ControlSettings controlProfiles[] = {
     0, // Camera Gamepad
     CONTROLTYPE_CBUTTONS // Use C-Buttons
   },
-  // 2 - Single Pad, Analog: Move, C-Buttons: Camera
+  // 2 - Single Pad, Analog: Move, D-Pad: Camera
   {
     0, // Single gamepad
     0, // Movement Gamepad
@@ -38,14 +38,22 @@ ControlSettings controlProfiles[] = {
     1, // Camera Gamepad
     CONTROLTYPE_ANALOG, // Use Analog Stick
   },
-  // 3 - Inverse Dual Pad, 1p Analog: Camera, 2p Analog: Move
+  // 4 - Inverse Dual Pad, 1p Analog: Camera, 2p Analog: Move
   {
     1, // Dual gamepad
     1, // Movement Gamepad
     CONTROLTYPE_ANALOG, // Use Analog Stick
     0, // Camera Gamepad
     CONTROLTYPE_ANALOG, // Use Analog Stick
-  }
+  },
+  // 5 - Single Pad, D-pad: Move, C-Buttons: Camera
+  {
+    0, // Single gamepad
+    0, // Movement Gamepad
+    CONTROLTYPE_DPAD, // Use Analog Stick
+    0, // Camera Gamepad
+    CONTROLTYPE_CBUTTONS // Use C-Buttons
+  },
 };
 
 void Rand_Seed(u32 seed) {
@@ -134,4 +142,9 @@ void Input_TranslateControls(ControllerInput * result, NUContData * input, Gamep
     result->trigger = (icMove->trigger | icCamera->trigger) & inputMask;
   }
   // TODO: Change analog stick response curve and other options here.
+}
+
+void Input_SetControls(GameplaySettings * settings, u8 profileId) {
+  settings->controlPreset = profileId;
+  settings->controls = controlProfiles[settings->controlPreset];
 }

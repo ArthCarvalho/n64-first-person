@@ -28,6 +28,18 @@
 #define CROUCH_SPEED 6.0f
 #define TURNBACK_TRESH -0.5f
 
+// preset names
+char input_preset0[] = "Default";
+char input_preset1[] = "Reversed Default";
+char input_preset2[] = "Left Handed (D-Pad)";
+char input_preset3[] = "Dual Joystick (Modern)";
+char input_preset4[] = "Dual Joystick (Reversed)";
+char input_preset5[] = "Full Digital";
+
+char * input_preset_str[] = {
+  input_preset0, input_preset1, input_preset2, input_preset3, input_preset4, input_preset5
+};
+
 typedef struct Player {
   Vec3F position;
   Vec2F direction; // Direction on XZ plane;
@@ -59,7 +71,7 @@ Lights1 sun_light = gdSPDefLights1(  80,  80,  80, /* no ambient light */
 
 /* Make the display list and activate the task. */
 
-float rotate = 0;
+static int display_countdown = 0;
 
 static int frameid = 0;
 static int init = 0;
@@ -310,7 +322,10 @@ void makeDL00(void)
 
 
   //DebugText_Print(0,0, "rot %f", player.rotation_y);
-  //DebugText_Print(0,1, "rs %d", player.turnAroundState);
+  if(display_countdown) {
+    DebugText_Print(0,1, "preset %d-%s", globalState.settings.controlPreset, input_preset_str[globalState.settings.controlPreset]);
+    display_countdown--;
+  }
 
   // Draw Debug
   DebugText_Draw(&glistp);
@@ -326,6 +341,13 @@ void makeDL00(void)
   nuGfxTaskStart(gfx_glist,
 		 (s32)(glistp - gfx_glist) * sizeof (Gfx),
 		 NU_GFX_UCODE_F3DEX_NON , NU_SC_SWAPBUFFER);
+
+  if(globalState.input[0].trigger & BTN_L) {
+    globalState.settings.controlPreset++;
+    if(globalState.settings.controlPreset == 6) globalState.settings.controlPreset = 0;
+    Input_SetControls(&globalState.settings, globalState.settings.controlPreset);
+    display_countdown = 60;
+  }
 }
 
 /* The vertex coordinate  */

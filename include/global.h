@@ -112,4 +112,6 @@ float Rand_Linear();
 
 void Input_TranslateControls(ControllerInput * result, NUContData * input, GameplaySettings * settings);
 
+void Input_SetControls(GameplaySettings * settings, u8 profileId);
+
 #endif
