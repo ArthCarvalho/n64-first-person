@@ -33,6 +33,8 @@
 #define BTN_C_LEFT      L_CBUTTONS
 #define BTN_C_RIGHT     R_CBUTTONS
 
+#define MATH_PI 3.141592653589793238f
+
 typedef struct Vec2F {
   float x, y;
 } Vec2F;

@@ -22,6 +22,10 @@
 
 #define HEAD_LOWER_LIMIT -1.20f
 #define HEAD_UPPER_LIMIT 1.40f
+#define PLAYER_HEIGHT 175.0f
+#define PLAYER_CROUCH_HEIGHT 84.0f
+#define WALK_SPEED 7.0f
+#define CROUCH_SPEED 3.0f
 
 typedef struct Player {
   Vec3F position;
@@ -30,8 +34,12 @@ typedef struct Player {
   float rotation_y; // Horizontal (Y axis) Rotation
   float rotation_head; // Vertical Rotation
   float view_height;
+  float view_height_current;
   float xzspeed;
   float strafespeed;
+  float rotation_y_dest; // Destination rotation for Y;
+  u8 crouchState;
+  u8 turnAroundState;
 } Player;
 
 Player player;
@@ -78,6 +86,8 @@ void makeDL00(void)
     player.view_height = 175.0f;
     player.rotation_y = 0.0f;
     player.rotation_head = 0.0f;
+    player.crouchState = 0;
+    player.turnAroundState = 0;
 
     for(int i = 0; i < SCREEN_DIRT_COUNT; i++) {
       screenDirt[i].position.x = Rand_Linear() * (SCREEN_WD - 32);
@@ -91,12 +101,47 @@ void makeDL00(void)
   nuContDataGetExAll(controller);
   Input_TranslateControls(&globalState.input[0], controller, &globalState.settings);
 
-  player.rotation_head += globalState.input[0].analog_r.y * 0.04f;
-  if(player.rotation_head < HEAD_LOWER_LIMIT) player.rotation_head = HEAD_LOWER_LIMIT;
-  if(player.rotation_head > HEAD_UPPER_LIMIT) player.rotation_head = HEAD_UPPER_LIMIT;
-  player.rotation_y += globalState.input[0].analog_r.x * 0.04f;
-  player.xzspeed = globalState.input[0].analog_l.y * 10.0f;
-  player.strafespeed = globalState.input[0].analog_l.x * -10.0f;
+  float moveSpdMax = WALK_SPEED;
+  if(player.crouchState) {
+    moveSpdMax = CROUCH_SPEED;
+    player.view_height_current = PLAYER_CROUCH_HEIGHT;
+  } else {
+    player.view_height_current = PLAYER_HEIGHT;
+  }
+
+  player.view_height += (player.view_height_current - player.view_height) * 0.2f;
+
+  if(globalState.input[0].trigger & BTN_B && globalState.input[0].analog_l.y > -0.2f) {
+    player.crouchState ^= 1;
+  }
+
+  
+
+  
+  if(player.turnAroundState == 0) {
+    if(globalState.input[0].trigger & BTN_B && globalState.input[0].analog_l.y < -0.2f) {
+      player.turnAroundState = 1;
+    }
+    player.rotation_head += globalState.input[0].analog_r.y * 0.04f;
+    if(player.rotation_head < HEAD_LOWER_LIMIT) player.rotation_head = HEAD_LOWER_LIMIT;
+    if(player.rotation_head > HEAD_UPPER_LIMIT) player.rotation_head = HEAD_UPPER_LIMIT;
+    player.rotation_y += globalState.input[0].analog_r.x * 0.04f;
+    player.xzspeed = globalState.input[0].analog_l.y * moveSpdMax;
+    player.strafespeed = globalState.input[0].analog_l.x * -moveSpdMax;
+  } else {
+    if(player.turnAroundState == 1) {
+      player.rotation_y_dest = player.rotation_y + MATH_PI;
+      player.turnAroundState = 2;
+    } else {
+      if(player.rotation_y <= (player.rotation_y_dest - 0.05f)) {
+        player.rotation_y += MATH_PI / 20.0f;
+      } else {
+        player.rotation_y = player.rotation_y_dest;
+        player.turnAroundState = 0;
+      }
+    }
+  }
+  
 
   if(globalState.input[0].button & BTN_Z) {
     player.position.y -= 1.0f;
@@ -143,11 +188,8 @@ void makeDL00(void)
     player.viewDirection.x, player.viewDirection.y, player.viewDirection.z,
     0.0f, 1.0f, 0.0f
   );
-  //guRotate(&gfx_dynamic.modeling, rotate, 0.0F, 1.0F, 0.0F);
 
   guRotate(&gfx_dynamic.modeling, 0.0f, 0.0F, 1.0F, 0.0F);
-
-  rotate += 0.1f;
 
   MtxF temp;
   guMtxCatF(gfx_dynamic.viewSkyF.mf, gfx_dynamic.projectionF.mf, temp.mf);
@@ -262,7 +304,8 @@ void makeDL00(void)
 
 
 
-  DebugText_Print(0,0, "rot %f", player.rotation_head);
+  DebugText_Print(0,0, "rot %f", player.rotation_y);
+  DebugText_Print(0,1, "rs %d", player.turnAroundState);
 
   // Draw Debug
   DebugText_Draw(&glistp);
