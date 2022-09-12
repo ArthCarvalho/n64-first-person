@@ -20,25 +20,6 @@
 #include "displayLists/skybox/model.inc.c"
 #include "shape/screen_dirt_spec.c"
 
-typedef struct AnalogMapping {
-  float l_analog_x;
-  float l_analog_y;
-  float r_analog_x;
-  float r_analog_y;
-} AnalogMapping;
-
-typedef struct PlayerControl {
-  float position_x;
-  float position_y;
-  float position_z;
-  float height;
-  float rotation_x;
-  float rotation_y;
-
-  float speed_forward;
-  float speed_sideways;
-} PlayerControl;
-
 typedef struct Player {
   Vec3F position;
   Vec2F direction; // Direction on XZ plane;
@@ -49,8 +30,6 @@ typedef struct Player {
   float xzspeed;
   float strafespeed;
 } Player;
-
-PlayerControl playerControl;
 
 Player player;
 
@@ -72,8 +51,6 @@ float rotate = 0;
 static int frameid = 0;
 static int init = 0;
 
-AnalogMapping analog_map;
-
 typedef struct ScreenDirt {
   Vec2F position;
   float alpha;
@@ -92,12 +69,6 @@ void makeDL00(void)
 {
   if(!init) {
     init = 1;
-    playerControl.position_x = 0.0f;
-    playerControl.position_y = 0.0f;
-    playerControl.position_z = -1000.0f;
-    playerControl.height = 175.0f;
-
-
     player.position.x = 0.0f;
     player.position.y = 0.0f;
     player.position.z = 0.0f;
@@ -116,15 +87,6 @@ void makeDL00(void)
   }
   nuContDataGetExAll(controller);
   Input_TranslateControls(&globalState.input[0], controller, &globalState.settings);
-
-
-  playerControl.speed_forward = globalState.input[0].analog_l.y;
-  playerControl.speed_sideways = globalState.input[0].analog_l.x;
-
-
-  playerControl.rotation_y += globalState.input[0].analog_r.x;
-  playerControl.rotation_x += globalState.input[0].analog_r.y;
-
 
   player.rotation_head += globalState.input[0].analog_r.y * 0.04f;
   player.rotation_y += globalState.input[0].analog_r.x * 0.04f;
