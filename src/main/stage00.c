@@ -24,8 +24,9 @@
 #define HEAD_UPPER_LIMIT 1.40f
 #define PLAYER_HEIGHT 175.0f
 #define PLAYER_CROUCH_HEIGHT 84.0f
-#define WALK_SPEED 7.0f
-#define CROUCH_SPEED 3.0f
+#define WALK_SPEED 14.0f
+#define CROUCH_SPEED 6.0f
+#define TURNBACK_TRESH -0.5f
 
 typedef struct Player {
   Vec3F position;
@@ -38,6 +39,7 @@ typedef struct Player {
   float xzspeed;
   float strafespeed;
   float rotation_y_dest; // Destination rotation for Y;
+  float rotation_head_step;
   u8 crouchState;
   u8 turnAroundState;
 } Player;
@@ -109,9 +111,9 @@ void makeDL00(void)
     player.view_height_current = PLAYER_HEIGHT;
   }
 
-  player.view_height += (player.view_height_current - player.view_height) * 0.2f;
+  player.view_height += (player.view_height_current - player.view_height) * 0.4f;
 
-  if(globalState.input[0].trigger & BTN_B && globalState.input[0].analog_l.y > -0.2f) {
+  if(globalState.input[0].trigger & BTN_B && globalState.input[0].analog_l.y > TURNBACK_TRESH) {
     player.crouchState ^= 1;
   }
 
@@ -119,7 +121,7 @@ void makeDL00(void)
 
   
   if(player.turnAroundState == 0) {
-    if(globalState.input[0].trigger & BTN_B && globalState.input[0].analog_l.y < -0.2f) {
+    if(globalState.input[0].trigger & BTN_B && globalState.input[0].analog_l.y < TURNBACK_TRESH) {
       player.turnAroundState = 1;
     }
     player.rotation_head += globalState.input[0].analog_r.y * 0.04f;
@@ -131,12 +133,15 @@ void makeDL00(void)
   } else {
     if(player.turnAroundState == 1) {
       player.rotation_y_dest = player.rotation_y + MATH_PI;
+      player.rotation_head_step = (-player.rotation_head) / 10.0f;
       player.turnAroundState = 2;
     } else {
       if(player.rotation_y <= (player.rotation_y_dest - 0.05f)) {
-        player.rotation_y += MATH_PI / 20.0f;
+        player.rotation_y += MATH_PI / 10.0f;
+        player.rotation_head += player.rotation_head_step;
       } else {
         player.rotation_y = player.rotation_y_dest;
+        player.rotation_head = 0.0f;
         player.turnAroundState = 0;
       }
     }
@@ -304,8 +309,8 @@ void makeDL00(void)
 
 
 
-  DebugText_Print(0,0, "rot %f", player.rotation_y);
-  DebugText_Print(0,1, "rs %d", player.turnAroundState);
+  //DebugText_Print(0,0, "rot %f", player.rotation_y);
+  //DebugText_Print(0,1, "rs %d", player.turnAroundState);
 
   // Draw Debug
   DebugText_Draw(&glistp);
