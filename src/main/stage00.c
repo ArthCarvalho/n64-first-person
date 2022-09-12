@@ -20,6 +20,9 @@
 #include "displayLists/skybox/model.inc.c"
 #include "shape/screen_dirt_spec.c"
 
+#define HEAD_LOWER_LIMIT -1.20f
+#define HEAD_UPPER_LIMIT 1.40f
+
 typedef struct Player {
   Vec3F position;
   Vec2F direction; // Direction on XZ plane;
@@ -89,6 +92,8 @@ void makeDL00(void)
   Input_TranslateControls(&globalState.input[0], controller, &globalState.settings);
 
   player.rotation_head += globalState.input[0].analog_r.y * 0.04f;
+  if(player.rotation_head < HEAD_LOWER_LIMIT) player.rotation_head = HEAD_LOWER_LIMIT;
+  if(player.rotation_head > HEAD_UPPER_LIMIT) player.rotation_head = HEAD_UPPER_LIMIT;
   player.rotation_y += globalState.input[0].analog_r.x * 0.04f;
   player.xzspeed = globalState.input[0].analog_l.y * 10.0f;
   player.strafespeed = globalState.input[0].analog_l.x * -10.0f;
@@ -257,7 +262,7 @@ void makeDL00(void)
 
 
 
-  DebugText_Print(0,0, "Light x: %f y: %f z: %f", sunpos_screen.x, sunpos_screen.y, sunpos_screen.z);
+  DebugText_Print(0,0, "rot %f", player.rotation_head);
 
   // Draw Debug
   DebugText_Draw(&glistp);

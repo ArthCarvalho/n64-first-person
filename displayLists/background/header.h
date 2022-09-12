@@ -8,7 +8,7 @@ extern u64 background_building_far_ci4_pal_rgba16[];
 extern u64 background_building_rooftop_ia8[];
 extern u64 background_spot_i8[];
 extern Vtx background_background_mesh_vtx_cull[8];
-extern Vtx background_background_mesh_vtx_0[25];
+extern Vtx background_background_mesh_vtx_0[26];
 extern Gfx background_background_mesh_tri_0[];
 extern Vtx background_background_mesh_vtx_1[90];
 extern Gfx background_background_mesh_tri_1[];
