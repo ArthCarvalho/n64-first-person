@@ -1,5 +1,4 @@
 extern Lights1 skybox_f3d_material_001_lights;
-extern Lights1 skybox_f3d_material_004_lights;
 extern u64 skybox_moon_hw_rgba32[];
 extern Vtx skybox_skybox_mesh_vtx_cull[8];
 extern Vtx skybox_skybox_mesh_vtx_0[9];

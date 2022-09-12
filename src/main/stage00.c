@@ -13,10 +13,12 @@
 #include "graphic.h"
 #include "global.h"
 #include "debug_text.h"
+#include "screen.h"
 
 #include "displayLists/building/model.inc.c"
 #include "displayLists/background/model.inc.c"
 #include "displayLists/skybox/model.inc.c"
+#include "shape/screen_dirt_spec.c"
 
 typedef struct AnalogMapping {
   float l_analog_x;
@@ -88,6 +90,19 @@ static int init = 0;
 
 AnalogMapping analog_map;
 
+typedef struct ScreenDirt {
+  Vec2F position;
+  float alpha;
+  float intensity;
+} ScreenDirt;
+
+#define SCREEN_DIRT_COUNT 64
+
+ScreenDirt screenDirt[SCREEN_DIRT_COUNT];
+
+u16 screenDepth = GPACK_ZDZ(G_MAXFBZ,0);
+float screenDirtLvl;
+float screenDirtLvlPrev;
 
 void makeDL00(void)
 {
@@ -105,6 +120,14 @@ void makeDL00(void)
     player.view_height = 175.0f;
     player.rotation_y = 0.0f;
     player.rotation_head = 0.0f;
+
+    for(int i = 0; i < SCREEN_DIRT_COUNT; i++) {
+      screenDirt[i].position.x = Rand_Linear() * (SCREEN_WD - 32);
+      screenDirt[i].position.y = Rand_Linear() * (SCREEN_HT - 32);
+      float alphalvl = Rand_Linear();
+      if(alphalvl < 0.8f) alphalvl *= 0.25f;
+      screenDirt[i].alpha = alphalvl * 64.0f + 16.0f;
+    }
 
   }
   nuContDataGetExAll(controller);
@@ -195,6 +218,12 @@ void makeDL00(void)
   MtxF temp;
   guMtxCatF(gfx_dynamic.viewSkyF.mf, gfx_dynamic.projectionF.mf, temp.mf);
   guMtxF2L(temp.mf, &gfx_dynamic.projectionSky);
+
+  static Vec3F sunpos = { 3175.44f, 5236.72f, 4054.82f };
+  Vec3F sunpos_screen;
+
+  Screen_ToScreenCoords(&sunpos_screen, &sunpos, &temp);
+
   guMtxCatF(gfx_dynamic.viewF.mf, gfx_dynamic.projectionF.mf, temp.mf);
   guMtxF2L(temp.mf, &gfx_dynamic.projection);
   
@@ -239,7 +268,66 @@ void makeDL00(void)
   /* Draw a square  */
   shadetri(&gfx_dynamic);
 
-  DebugText_Print(0,0, "Testing %f", rotate);
+
+  // Draw 2D
+  gDPSetTexturePersp(glistp++, G_TP_NONE);
+  gDPSetCycleType(glistp++, G_CYC_1CYCLE);
+  gDPSetRenderMode(glistp++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+  gDPSetTextureFilter(glistp++, G_TF_POINT);
+  gSPClearGeometryMode(glistp++, 0xFFFFFFFF);
+  //gSPSetGeometryMode(glistp++, G_SHADE| G_SHADING_SMOOTH);
+  gDPSetCombineLERP(glistp++,
+    1,  0,  PRIMITIVE,  0, // c0
+    TEXEL0,  0,  PRIMITIVE,  0, // a0
+    1,  0,  PRIMITIVE,  0, // c1
+    TEXEL0,  0,  PRIMITIVE,  0  // a1
+  );
+  
+  screenDirtLvl = 0.0f;
+  screenDepth = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y);
+  u16 depthProbe0 = Screen_GetPixelDepthSafe(sunpos_screen.x+6, sunpos_screen.y) == GPACK_ZDZ(G_MAXFBZ,0);
+  u16 depthProbe1 = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y+6) == GPACK_ZDZ(G_MAXFBZ,0);
+  u16 depthProbe2 = Screen_GetPixelDepthSafe(sunpos_screen.x-6, sunpos_screen.y) == GPACK_ZDZ(G_MAXFBZ,0);
+  u16 depthProbe3 = Screen_GetPixelDepthSafe(sunpos_screen.x, sunpos_screen.y-6) == GPACK_ZDZ(G_MAXFBZ,0);
+  screenDirtLvl = ((screenDepth == GPACK_ZDZ(G_MAXFBZ,0)) + depthProbe0 + depthProbe1 + depthProbe2 + depthProbe3) / 5.0f;
+  if(screenDirtLvl < 0.00025f) screenDirtLvl = 0.0f;
+
+  if(screenDirtLvlPrev != 0.0f) {
+    gDPLoadTextureBlock_4b(glistp++, screen_dirt_spec_i4, G_IM_FMT_I, 32, 32, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+        G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    for(int i = 0; i < SCREEN_DIRT_COUNT; i++) {
+        
+        float dx = screenDirt[i].position.x;
+        float dy = screenDirt[i].position.y;
+
+        float ddistx = sunpos_screen.x - dx;
+        float ddisty = sunpos_screen.y - dy;
+        float dist = ddistx * ddistx + ddisty * ddisty;
+        //#define MAX_DIRT_DIST 200.0f
+        #define MAX_DIRT_DIST (200.0f * 200.0f)
+        if(dist > MAX_DIRT_DIST) {
+          continue;
+        }
+        dist /= MAX_DIRT_DIST;
+
+        gDPSetPrimColor(glistp++, 0, 0, 255, 181, 162, screenDirt[i].alpha * (1.0f - dist) * screenDirtLvlPrev);
+        gDPPipeSync(glistp++);
+        gSPTextureRectangle(glistp++,
+          dx * 4.0f, dy * 4.0f,
+          (dx+32.0f) * 4.0f, (dy+32.0f) * 4.0f,
+          G_TX_RENDERTILE,
+          0<<5, 0<<5,
+          1<<10, 1<<10
+        );
+    }
+  }
+
+  screenDirtLvlPrev += (screenDirtLvl - screenDirtLvlPrev) * 0.25f;
+
+
+
+  DebugText_Print(0,0, "Light x: %f y: %f z: %f", sunpos_screen.x, sunpos_screen.y, sunpos_screen.z);
+  DebugText_Print(0,1, "Spec x: %f y: %f a: %f", screenDirt[0].position.x, screenDirt[0].position.y, screenDirt[0].alpha);
 
 
   // Draw Debug

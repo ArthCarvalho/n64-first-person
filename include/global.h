@@ -3,6 +3,19 @@
 
 #include <nusys.h>
 
+//#define HIRESO
+
+#define NUSYS_FRAMERATE 1 // 1 = 60 FPS, 2 = 30 FPS, 3 = 20FPS (NTSC)
+
+/* The screen size  */
+#ifdef HIRESO
+#define SCREEN_HT        480
+#define SCREEN_WD        320
+#else
+#define SCREEN_HT        240
+#define SCREEN_WD        320
+#endif
+
 #define PACK_RGBA(r,g,b,a) (GPACK_RGBA5551(r, g, b, a) << 16 |	GPACK_RGBA5551(r, g, b, a))
 
 typedef struct Vec2F {
@@ -51,5 +64,8 @@ typedef struct GameplaySettings {
 typedef struct GlobalState {
   GameplaySettings settings;
 } GlobalState;
+
+void Rand_Seed(u32 seed);
+float Rand_Linear();
 
 #endif

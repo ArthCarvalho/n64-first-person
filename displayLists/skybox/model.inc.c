@@ -2,10 +2,6 @@ Lights1 skybox_f3d_material_001_lights = gdSPDefLights1(
 	0x7F, 0x7F, 0x7F,
 	0xFE, 0xFE, 0xFE, 0x28, 0x28, 0x28);
 
-Lights1 skybox_f3d_material_004_lights = gdSPDefLights1(
-	0x7F, 0x7F, 0x7F,
-	0xFE, 0xFE, 0xFE, 0x28, 0x28, 0x28);
-
 u64 skybox_moon_hw_rgba32[] = {
 	0xe2d6d200c3a8a000, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 
 	0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 0xc5aba300c5aba300, 
@@ -110,7 +106,7 @@ Vtx skybox_skybox_mesh_vtx_1[4] = {
 	{{{2729, 4199, 5902},0, {-16, 2032},{0xFF, 0xFF, 0xFF, 0xFF}}},
 	{{{1279, 6275, 4180},0, {2032, 2032},{0xFF, 0xFF, 0xFF, 0xFF}}},
 	{{{3622, 6275, 2208},0, {2032, -16},{0xFF, 0xFF, 0xFF, 0xFF}}},
-	{{{5072, 4199, 3930},0, {-16, -16},{0xFF, 0xFF, 0xFF, 0xFF}}},
+	{{{5072, 4199, 3929},0, {-16, -16},{0xFF, 0xFF, 0xFF, 0xFF}}},
 };
 
 Gfx skybox_skybox_mesh_tri_1[] = {
@@ -137,7 +133,7 @@ Gfx mat_revert_skybox_f3d_material_001[] = {
 
 Gfx mat_skybox_f3d_material_004[] = {
 	gsDPPipeSync(),
-	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0),
+	gsDPSetCombineLERP(TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0),
 	gsSPGeometryMode(G_SHADE | G_CULL_BACK | G_LIGHTING, 0),
 	gsDPSetRenderMode(G_RM_ZB_XLU_SURF, G_RM_ZB_XLU_SURF2),
 	gsSPTexture(65535, 65535, 0, 0, 1),
@@ -150,7 +146,6 @@ Gfx mat_skybox_f3d_material_004[] = {
 	gsDPSetTile(G_IM_FMT_RGBA, G_IM_SIZ_32b, 8, 0, 0, 0, G_TX_WRAP | G_TX_MIRROR, 5, 0, G_TX_WRAP | G_TX_MIRROR, 5, 0),
 	gsDPSetTileSize(0, 0, 0, 124, 124),
 	gsDPSetPrimColor(0, 0, 254, 254, 254, 255),
-	gsSPSetLights1(skybox_f3d_material_004_lights),
 	gsSPEndDisplayList(),
 };
 

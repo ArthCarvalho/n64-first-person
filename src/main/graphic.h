@@ -13,18 +13,6 @@
 
 #include "global.h"
 
-//#define HIRESO
-
-#define NUSYS_FRAMERATE 1 // 1 = 60 FPS, 2 = 30 FPS, 3 = 20FPS (NTSC)
-
-/* The screen size  */
-#ifdef HIRESO
-#define SCREEN_HT        480
-#define SCREEN_WD        320
-#else
-#define SCREEN_HT        240
-#define SCREEN_WD        320
-#endif
 
 /* The maximum length of the display list of one task  */
 #define GFX_GLIST_LEN     2048
