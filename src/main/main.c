@@ -114,6 +114,12 @@ void mainproc(void *arg)
   // Initialize Rumble Pak
   nuContRmbModeSet(0, NU_CONT_RMB_MODE_AUTORUN);
 
+  // TODO: Load saved settings from SRAM/Controller Pak
+  globalState.settings.controlPreset = 3;
+  globalState.settings.controls = controlProfiles[globalState.settings.controlPreset];
+  globalState.settings.cameraInvertY = 0;
+  globalState.settings.fieldOfView = 45.0f; //45.0f;
+
 
 #ifdef HIRESO
   nuGfxTaskAllEndWait();

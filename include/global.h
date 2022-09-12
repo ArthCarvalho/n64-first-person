@@ -18,6 +18,21 @@
 
 #define PACK_RGBA(r,g,b,a) (GPACK_RGBA5551(r, g, b, a) << 16 |	GPACK_RGBA5551(r, g, b, a))
 
+#define BTN_A           A_BUTTON
+#define BTN_B           B_BUTTON
+#define BTN_START       START_BUTTON
+#define BTN_L           L_TRIG
+#define BTN_R           R_TRIG
+#define BTN_Z           Z_TRIG
+#define BTN_DPAD_UP     U_JPAD
+#define BTN_DPAD_DOWN   D_JPAD
+#define BTN_DPAD_LEFT   L_JPAD
+#define BTN_DPAD_RIGHT  R_JPAD
+#define BTN_C_UP        U_CBUTTONS
+#define BTN_C_DOWN      D_CBUTTONS
+#define BTN_C_LEFT      L_CBUTTONS
+#define BTN_C_RIGHT     R_CBUTTONS
+
 typedef struct Vec2F {
   float x, y;
 } Vec2F;
@@ -50,22 +65,49 @@ typedef union {
 // 1 - C Buttons
 // 2 - D-Pad
 
+typedef struct ControllerInput {
+  Vec2F analog_l;
+  Vec2F analog_r;
+  u16 button;
+  u16 trigger;
+} ControllerInput;
 
+typedef enum {
+  CONTROLTYPE_ANALOG,
+  CONTROLTYPE_DPAD,
+  CONTROLTYPE_CBUTTONS
+} ControlType;
+
+typedef struct ControlSettings {
+  u8 useDualPads;
+  u8 movementPad;
+  u8 movementControl;
+  u8 cameraPad;
+  u8 cameraControl;
+} ControlSettings;
 
 typedef struct GameplaySettings {
   u8 controlPreset;
-  u8 movementControl;
-  u8 cameraControl;
+  ControlSettings controls;
   u8 cameraSensitivity;
   u8 cameraAcceleration;
-  u8 fieldOfView;
+  u8 cameraInvertY;
+  u8 movementSensitivity;
+  u8 movementAcceleration;
+  float fieldOfView;
 } GameplaySettings;
 
 typedef struct GlobalState {
   GameplaySettings settings;
+  ControllerInput input[4];
 } GlobalState;
+
+extern GlobalState globalState;
+extern ControlSettings controlProfiles[];
 
 void Rand_Seed(u32 seed);
 float Rand_Linear();
+
+void Input_TranslateControls(ControllerInput * result, NUContData * input, GameplaySettings * settings);
 
 #endif

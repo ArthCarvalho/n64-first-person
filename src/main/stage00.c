@@ -54,22 +54,6 @@ PlayerControl playerControl;
 
 Player player;
 
-#define BTN_A           A_BUTTON
-#define BTN_B           B_BUTTON
-#define BTN_START       START_BUTTON
-#define BTN_L           L_TRIG
-#define BTN_R           R_TRIG
-#define BTN_Z           Z_TRIG
-#define BTN_DPAD_UP     U_JPAD
-#define BTN_DPAD_DOWN   D_JPAD
-#define BTN_DPAD_LEFT   L_JPAD
-#define BTN_DPAD_RIGHT  R_JPAD
-#define BTN_C_UP        U_CBUTTONS
-#define BTN_C_DOWN      D_CBUTTONS
-#define BTN_C_LEFT      L_CBUTTONS
-#define BTN_C_RIGHT     R_CBUTTONS
-
-
 NUContData controller[4];
 
 void shadetri(Dynamic* dynamicp);
@@ -131,43 +115,26 @@ void makeDL00(void)
 
   }
   nuContDataGetExAll(controller);
-  // Convert analog sticks
-  analog_map.l_analog_x = controller[0].stick_x / 128.0f;
-  analog_map.l_analog_y = controller[0].stick_y / 128.0f;
-  analog_map.r_analog_x = 0.0f;
-  analog_map.r_analog_y = 0.0f;
-  if(controller[0].button & BTN_C_UP) {
-    analog_map.r_analog_y += 1.0f;
-  }
-  if(controller[0].button & BTN_C_DOWN) {
-    analog_map.r_analog_y -= 1.0f;
-  }
-  
-  if(controller[0].button & BTN_C_LEFT) {
-    analog_map.r_analog_x += 1.0f;
-  }
-  if(controller[0].button & BTN_C_RIGHT) {
-    analog_map.r_analog_x -= 1.0f;
-  }
+  Input_TranslateControls(&globalState.input[0], controller, &globalState.settings);
 
 
-  playerControl.speed_forward = analog_map.r_analog_y;
-  playerControl.speed_sideways = analog_map.r_analog_x;
+  playerControl.speed_forward = globalState.input[0].analog_l.y;
+  playerControl.speed_sideways = globalState.input[0].analog_l.x;
 
 
-  playerControl.rotation_y += analog_map.l_analog_x;
-  playerControl.rotation_x += analog_map.l_analog_y;
+  playerControl.rotation_y += globalState.input[0].analog_r.x;
+  playerControl.rotation_x += globalState.input[0].analog_r.y;
 
 
-  player.rotation_head += analog_map.l_analog_y * 0.04f;
-  player.rotation_y += analog_map.l_analog_x * 0.04f;
-  player.xzspeed = analog_map.r_analog_y * 10.0f;
-  player.strafespeed = analog_map.r_analog_x * 10.0f;
+  player.rotation_head += globalState.input[0].analog_r.y * 0.04f;
+  player.rotation_y += globalState.input[0].analog_r.x * 0.04f;
+  player.xzspeed = globalState.input[0].analog_l.y * 10.0f;
+  player.strafespeed = globalState.input[0].analog_l.x * -10.0f;
 
-  if(controller[0].button & BTN_Z) {
+  if(globalState.input[0].button & BTN_Z) {
     player.position.y -= 1.0f;
   }
-  if(controller[0].button & BTN_R) {
+  if(globalState.input[0].button & BTN_R) {
     player.position.y += 1.0f;
   }
 
@@ -193,7 +160,7 @@ void makeDL00(void)
   guPerspectiveF(
     &gfx_dynamic.projectionF,
     &gfx_dynamic.perspNorm,
-    45.0f,
+    globalState.settings.fieldOfView,
     320.0F/240.0F,
     100.0f,
     21000.0f,
